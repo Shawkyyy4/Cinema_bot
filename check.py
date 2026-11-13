@@ -1,6 +1,6 @@
-import requests, json, os, time
+import requests, json, os, re, time
 
-URL = "https://egy.voxcinemas.com/showtimes?c=city-centre-almaza&d=20261225"
+URL = "https://egy.voxcinemas.com/showtimes?c=city-centre-almaza&m=avengers-doomsday-infinity-vision"
 TOKEN = os.environ["TOKEN"]
 CHAT_ID = os.environ["CHAT_ID"]
 FILE = "seen.json"
@@ -34,20 +34,22 @@ for attempt in range(3):
         time.sleep(5)
 
 if r is None:
-    print("الموقع مش بيرد على سيرفر GitHub")
+    print("الموقع مش بيرد")
     raise SystemExit(0)
 
-text = r.text.lower()
-has_doom = "doomsday" in text
-has_inf = has_doom and "infinity" in text
-print("status", r.status_code, "size", len(r.text), "doomsday", has_doom, "infinity", has_inf)
+clean = re.sub(r"<[^>]+>", " ", r.text)
+clean = re.sub(r"\s+", " ", clean).lower()
 
-if has_doom and not state.get("doomsday"):
-    send(f"🎬 نزلت حفلات Avengers: Doomsday في الماظة يوم 25 ديسمبر\n{URL}")
-    state["doomsday"] = True
+pattern = r"(?:mon|tue|wed|thu|fri|sat|sun)\s*\d{1,2}\s*(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)"
+days = list(dict.fromkeys(re.findall(pattern, clean)))
+day_open = re.search(r"fri\s*25\s*dec", clean) is not None
 
-if has_inf and not state.get("infinity"):
-    send(f"✨ ظهرت كلمة Infinity جنب Doomsday يوم 25 ديسمبر، افحص الحفلات\n{URL}")
-    state["infinity"] = True
+print("status", r.status_code)
+print("الأيام اللي لقيتها:", days)
+print("يوم 25 ظهر:", day_open)
+
+if day_open and not state.get("day25"):
+    send(f"🎬 فهمت! حفلات Doomsday Infinity Vision يوم الجمعة 25 ديسمبر نزلت، الحق احجز\n{URL}")
+    state["day25"] = True
 
 json.dump(state, open(FILE, "w"))
