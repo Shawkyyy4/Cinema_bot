@@ -4,7 +4,7 @@ URL = "https://egy.voxcinemas.com/showtimes?c=city-centre-almaza&m=avengers-doom
 TOKEN = os.environ["TOKEN"]
 CHAT_IDS = [c.strip() for c in os.environ["CHAT_ID"].split(",") if c.strip()]
 FILE = "seen.json"
-TEST = False
+TEST = True
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
     "Accept": "text/html,application/xhtml+xml",
